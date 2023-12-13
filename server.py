@@ -43,7 +43,6 @@ class ServerGUI:
         port = 1234
         self.server_socket.bind((host_name, port))
         print(host_name, '({})'.format(ip))
-        # self.name = "Referee"
 
         #socket will listen for incoming connections 
         self.server_socket.listen()
@@ -51,30 +50,36 @@ class ServerGUI:
 
     #gets the message and broadcasts it to all connected clients
     def send_message(self):
-        message = self.message_entry.get()
-        self.chat_history.configure(state="normal")
-        self.broadcast("Server: {}".format(message))
-        self.chat_history.configure(state="disabled")
-        self.message_entry.delete(0, tk.END)
+        try:
+            message = self.message_entry.get()
+            self.chat_history.configure(state="normal")
+            self.broadcast("Server: {}".format(message))
+            self.chat_history.configure(state="disabled")
+            self.message_entry.delete(0, tk.END)
+        except OSError as e:
+            close_server_window()
 
     #loops to continue to receive messages 
     def receive_messages(self):
         while True:
-            #If connection extablished, accepts incoming connection and prints the ip address and other info 
-            client_socket, addr = self.server_socket.accept()
-            print("Received connection from ", addr[0], "(", addr[1], ")")
-            print('Connection Established. Connected From: {}, ({})'.format(addr[0], addr[0]))
+            try:
+                #If connection extablished, accepts incoming connection and prints the ip address and other info 
+                client_socket, addr = self.server_socket.accept()
+                print("Received connection from ", addr[0], "(", addr[1], ")")
+                print('Connection Established. Connected From: {}, ({})'.format(addr[0], addr[0]))
 
-            # Receive client name
-            client_name = client_socket.recv(1024).decode()
+                # Receive client name
+                client_name = client_socket.recv(1024).decode()
 
-            #adds name to list of clients
-            self.clients.append((client_socket, client_name))
-            #broadcasts that a user has joined the chat 
-            self.broadcast("{} has joined the chat".format(client_name))
+                #adds name to list of clients
+                self.clients.append((client_socket, client_name))
+                #broadcasts that a user has joined the chat 
+                self.broadcast("{} has joined the chat".format(client_name))
 
-            client_handler = threading.Thread(target=self.handle_client, args=(client_socket, client_name))
-            client_handler.start()
+                client_handler = threading.Thread(target=self.handle_client, args=(client_socket, client_name))
+                client_handler.start()
+            except OSError as e:
+                close_server_window()
 
     def handle_client(self, client_socket, client_name):
         try:

@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import scrolledtext
 import socket
+import time
 import threading
 
 #formatting for gui
@@ -53,9 +54,14 @@ class ClientGUI:
                 self.chat_history.configure(state="disabled")
             # except ConnectionAbortedError:
             #     break
-            except:
-                print("Error occurred")
+            except ConnectionResetError:
+                self.chat_history.configure(state="normal")
+                self.chat_history.insert(tk.END, "Server closed in 5 seconds.")
+                self.chat_history.configure(state="disabled")
+                time.sleep(5)
                 self.client_socket.close()
+                self.master.destroy()
+            except:
                 break
 
 #main fxn to ask for server ip add and name 
@@ -65,7 +71,7 @@ def main():
     port = 1234
 
     root = tk.Tk()
-    client_app = ClientGUI(root, server_host, port, name)
+    ClientGUI(root, server_host, port, name)
     root.mainloop()
 
 main()
