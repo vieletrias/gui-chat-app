@@ -30,7 +30,9 @@ class ClientGUI:
 
     #fxn call to send message 
     def send_message(self):
+        self.chat_history.configure(state="normal")
         message = self.message_entry.get()
+        self.chat_history.configure(state="disabled")
         #if user enter bye then the application will close as well
         if message == "[bye]":
             self.client_socket.send(message.encode())
@@ -46,7 +48,9 @@ class ClientGUI:
             try:
                 #receives messages and insert it into chat history
                 message = self.client_socket.recv(1024).decode()
+                self.chat_history.configure(state="normal")
                 self.chat_history.insert(tk.END, message + '\n')
+                self.chat_history.configure(state="disabled")
             # except ConnectionAbortedError:
             #     break
             except:

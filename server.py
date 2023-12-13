@@ -52,7 +52,9 @@ class ServerGUI:
     #gets the message and broadcasts it to all connected clients
     def send_message(self):
         message = self.message_entry.get()
+        self.chat_history.configure(state="normal")
         self.broadcast("Server: {}".format(message))
+        self.chat_history.configure(state="disabled")
         self.message_entry.delete(0, tk.END)
 
     #loops to continue to receive messages 
@@ -96,7 +98,9 @@ class ServerGUI:
 
     #broadcast part where message is being sent
     def broadcast(self, message):
+        self.chat_history.configure(state="normal")
         self.chat_history.insert(tk.END, message + '\n')
+        self.chat_history.configure(state="disabled")
         #loops through each client to send message
         for client, c in self.clients:
             try:
